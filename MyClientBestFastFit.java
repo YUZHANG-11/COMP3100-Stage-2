@@ -75,12 +75,16 @@ public class MyClientBestFastFit {
 
         client.sendMessage("HELO"); // establish connection
         client.sendMessage("AUTH " + System.getProperty("user.name"));
+        client.sendMessage("GETS All");
+        String servers = client.sendMessage("OK");
+        List<ServerNode> nodeTypes = client.getServerList(servers); // Properties of the most primitive servers, especially cores
         String jobStr = client.sendMessage("REDY");
+
         while (!jobStr.equals("NONE\n")) {
             if (jobStr.startsWith("JOBN")) {
                 Job job = client.getJobFromString(jobStr);
-                client.sendMessage("GETS Capable " + job.getCore() + " " + job.getMemory() + " " + job.getDisk());
-                String servers = client.sendMessage("OK");
+                client.sendMessage("GETS All");
+                servers = client.sendMessage("OK");
                 List<ServerNode> nodeList = client.getServerList(servers);
                 ServerNode FirstNode = nodeList.get(0);
                 client.sendMessage("OK");
