@@ -34,7 +34,7 @@ public class MyClientBestFastFit {
         client.sendMessage("GETS All");
         String servers = client.sendMessage("OK");
         client.sendMessage("OK");
-        List<MyClientBestFastFit.ServerNode> serverTypes = client.getServerList(servers);
+        List<ServerNode> serverTypes = client.getServerList(servers);
 
         while (!jobStr.equals("NONE\n")) {
             if (jobStr.startsWith("JOBN")) {
@@ -45,14 +45,14 @@ public class MyClientBestFastFit {
                 ServerNode bestNode = null;
                 for (ServerNode liveNode : liveList) {
                     if (liveNode.getCore() >= job.getCore() && liveNode.getMemory() >= job.getMemory() && liveNode.getDisk() >= job.getDisk()) {
-                        if (bestNode == null){
+                        if (bestNode == null || liveNode.getCore() < bestNode.getCore()) {
                             bestNode = liveNode;
                         }
                     }
                 }
                 if (bestNode == null) {
                     for (int i = 0; i < liveList.size(); i++) {
-                        MyClientBestFastFit.ServerNode liveNode = liveList.get(i);
+                        ServerNode liveNode = liveList.get(i);
                         if (serverTypes.get(i).getCore() >= job.getCore() && serverTypes.get(i).getMemory() >= job.getMemory() && serverTypes.get(i).getDisk() >= job.getDisk()) {
                             if (bestNode == null || liveNode.getCore() > bestNode.getCore()) {
                                 bestNode = liveNode;
