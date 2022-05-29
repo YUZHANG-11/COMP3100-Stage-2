@@ -30,10 +30,9 @@ public class MyClientBestFastFit {
 
         client.sendMessage("HELO"); // establish connection
         client.sendMessage("AUTH " + System.getProperty("user.name"));
+        String jobStr = client.sendMessage("REDY");
         client.sendMessage("GETS All");
         String servers = client.sendMessage("OK");
-        List<ServerNode> nodeTypes = client.getServerList(servers); // Properties of the most primitive servers, especially cores
-        String jobStr = client.sendMessage("REDY");
         client.sendMessage("OK");
         List<MyClientBestFastFit.ServerNode> serverTypes = client.getServerList(servers);
 
