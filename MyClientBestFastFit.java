@@ -30,22 +30,34 @@ public class MyClientBestFastFit {
 
         client.sendMessage("HELO"); // establish connection
         client.sendMessage("AUTH " + System.getProperty("user.name"));
-        //client.sendMessage("GETS All");
-        //String servers = client.sendMessage("OK");
-        //List<ServerNode> nodeTypes = client.getServerList(servers); // Properties of the most primitive servers, especially cores
+        client.sendMessage("GETS All");
+        String servers = client.sendMessage("OK");
+        List<ServerNode> nodeTypes = client.getServerList(servers); // Properties of the most primitive servers, especially cores
         String jobStr = client.sendMessage("REDY");
+        client.sendMessage("OK");
+        List<MyClientBestFastFit.ServerNode> serverTypes = client.getServerList(servers);
 
         while (!jobStr.equals("NONE\n")) {
             if (jobStr.startsWith("JOBN")) {
                 Job job = client.getJobFromString(jobStr);
                 client.sendMessage("GETS All");
-                String servers = client.sendMessage("OK");
+                servers = client.sendMessage("OK");
                 List<ServerNode> liveList = client.getServerList(servers);
                 ServerNode bestNode = null;
                 for (ServerNode liveNode : liveList) {
                     if (liveNode.getCore() >= job.getCore() && liveNode.getMemory() >= job.getMemory() && liveNode.getDisk() >= job.getDisk()) {
                         if (bestNode == null){
                             bestNode = liveNode;
+                        }
+                    }
+                }
+                if (bestNode == null) {
+                    for (int i = 0; i < liveList.size(); i++) {
+                        MyClientBestFastFit.ServerNode liveNode = liveList.get(i);
+                        if (serverTypes.get(i).getCore() >= job.getCore() && serverTypes.get(i).getMemory() >= job.getMemory() && serverTypes.get(i).getDisk() >= job.getDisk()) {
+                            if (bestNode == null || liveNode.getCore() > bestNode.getCore()) {
+                                bestNode = liveNode;
+                            }
                         }
                     }
                 }
