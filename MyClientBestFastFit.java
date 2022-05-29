@@ -1,5 +1,8 @@
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.Socket;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +22,42 @@ public class MyClientBestFastFit {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+
+        MyClientBestFastFit client = new MyClientBestFastFit();
+
+        client.sendMessage("HELO"); // establish connection
+        client.sendMessage("AUTH " + System.getProperty("user.name"));
+        //client.sendMessage("GETS All");
+        //String servers = client.sendMessage("OK");
+        //List<ServerNode> nodeTypes = client.getServerList(servers); // Properties of the most primitive servers, especially cores
+        String jobStr = client.sendMessage("REDY");
+
+        while (!jobStr.equals("NONE\n")) {
+            if (jobStr.startsWith("JOBN")) {
+                Job job = client.getJobFromString(jobStr);
+                client.sendMessage("GETS All");
+                String servers = client.sendMessage("OK");
+                List<ServerNode> liveList = client.getServerList(servers);
+                ServerNode bestNode = null;
+                for (ServerNode liveNode : liveList) {
+                    if (liveNode.getCore() >= job.getCore() && liveNode.getMemory() >= job.getMemory() && liveNode.getDisk() >= job.getDisk()) {
+                        if (bestNode == null){
+                            bestNode = liveNode;
+                        }
+                    }
+                }
+                ServerNode FirstNode = liveList.get(0);
+                client.sendMessage("OK");
+                client.sendMessage("SCHD " + job.getJobID() + " " + FirstNode.getServerType() + " " + FirstNode.getServerID());
+                client.sendMessage("OK");
+            }
+            jobStr = client.sendMessage("REDY");
+        }
+        client.sendMessage("QUIT"); // shutdown
+        client.close();
     }
 
     public String sendMessage(String cmd) { // create a method receive a command and return a response back
@@ -67,34 +106,6 @@ public class MyClientBestFastFit {
             serverNodeList.add(serverNode); // add them into the Arraylist
         }
         return serverNodeList;
-    }
-
-    public static void main(String[] args) {
-
-        MyClientBestFastFit client = new MyClientBestFastFit();
-
-        client.sendMessage("HELO"); // establish connection
-        client.sendMessage("AUTH " + System.getProperty("user.name"));
-        client.sendMessage("GETS All");
-        String servers = client.sendMessage("OK");
-        List<ServerNode> nodeTypes = client.getServerList(servers); // Properties of the most primitive servers, especially cores
-        String jobStr = client.sendMessage("REDY");
-
-        while (!jobStr.equals("NONE\n")) {
-            if (jobStr.startsWith("JOBN")) {
-                Job job = client.getJobFromString(jobStr);
-                client.sendMessage("GETS All");
-                servers = client.sendMessage("OK");
-                List<ServerNode> nodeList = client.getServerList(servers);
-                ServerNode FirstNode = nodeList.get(0);
-                client.sendMessage("OK");
-                client.sendMessage("SCHD " + job.getJobID() + " " + FirstNode.getServerType() + " " + FirstNode.getServerID());
-                client.sendMessage("OK");
-            }
-            jobStr = client.sendMessage("REDY");
-        }
-        client.sendMessage("QUIT"); // shutdown
-        client.close();
     }
 
     private Job getJobFromString(String jobStr) {
