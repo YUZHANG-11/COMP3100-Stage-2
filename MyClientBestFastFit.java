@@ -60,9 +60,9 @@ public class MyClientBestFastFit {
                         }
                     }
                 }
-                ServerNode FirstNode = liveList.get(0);
+
                 client.sendMessage("OK");
-                client.sendMessage("SCHD " + job.getJobID() + " " + FirstNode.getServerType() + " " + FirstNode.getServerID());
+                client.sendMessage("SCHD " + job.getJobID() + " " + bestNode.getServerType() + " " + bestNode.getServerID());
                 client.sendMessage("OK");
             }
             jobStr = client.sendMessage("REDY");
